@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Wochenplaner 2026 — Purki's Sunshine</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest-wochenplaner.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wochenplaner">
+<meta name="theme-color" content="#0C2340">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230C2340'/><text x='50' y='38' text-anchor='middle' font-size='28'>%E2%98%80%EF%B8%8F</text><text x='50' y='72' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='22' fill='white'>P</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230C2340'/><text x='50' y='38' text-anchor='middle' font-size='28'>%E2%98%80%EF%B8%8F</text><text x='50' y='72' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='22' fill='white'>P</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0C2340;
+  --navy-mid: #163554;
+  --petrol: #2D5F7C;
+  --petrol-light: #3A7CA5;
+  --gold: #D4A843;
+  --gold-light: #E8C96A;
+  --success: #00695C;
+  --success-bg: #E0F2F1;
+  --danger: #B71C1C;
+  --danger-bg: #FFEBEE;
+  --white: #FFFFFF;
+  --bg: #F4F6F8;
+  --border: #DEE2E6;
+  --muted: #5F6B7A;
+  --text: #1A1A1A;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --sidebar-w: 220px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ===================== SIDEBAR ===================== */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  position: fixed;
+  top: 0; left: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-company {
+  font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.25rem;
+}
+.sidebar-title {
+  font-size: 0.68rem; font-weight: 600; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.4;
+}
+.sidebar-nav { padding: 1rem 0; flex: 1; }
+.nav-label {
+  font-size: 0.55rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  padding: 0.6rem 1.25rem 0.3rem;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.65rem 1.25rem; cursor: pointer;
+  font-size: 0.72rem; font-weight: 500;
+  color: rgba(255,255,255,0.65); border-left: 3px solid transparent;
+  transition: all 0.15s ease; user-select: none; text-decoration: none;
+}
+.nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: rgba(255,255,255,0.07); color: #fff; border-left-color: var(--gold); font-weight: 600; }
+.nav-item .nav-icon { font-size: 0.85rem; width: 1.2rem; text-align: center; }
+.sidebar-footer {
+  padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.6rem; color: rgba(255,255,255,0.3); line-height: 1.6;
+}
+.btn-refresh {
+  display: block; width: 100%;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7); padding: 0.5rem 1rem; cursor: pointer;
+  font-family: inherit; font-size: 0.7rem; font-weight: 500;
+  text-align: center; margin-bottom: 0.5rem; border-radius: 2px; transition: background 0.15s;
+}
+.btn-refresh:hover { background: rgba(255,255,255,0.14); color: #fff; }
+.btn-print {
+  display: block; width: 100%; background: none;
+  border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.45);
+  padding: 0.45rem 1rem; cursor: pointer; font-family: inherit;
+  font-size: 0.65rem; font-weight: 500; text-align: center; border-radius: 2px;
+  transition: background 0.15s;
+}
+.btn-print:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7); }
+
+/* Mobile */
+.mobile-bar {
+  display: none; background: var(--navy);
+  padding: 0.75rem 1.25rem; align-items: center; justify-content: space-between;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300; height: 52px;
+}
+.mobile-brand { font-size: 0.7rem; font-weight: 700; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; }
+.hamburger { background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; flex-direction: column; gap: 4px; }
+.hamburger span { display: block; width: 20px; height: 2px; background: rgba(255,255,255,0.7); border-radius: 1px; }
+
+/* ===================== MAIN ===================== */
+.main-wrapper { margin-left: var(--sidebar-w); flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.page-header {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem 0; position: sticky; top: 0; z-index: 100;
+}
+.page-header-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.page-section-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--petrol); margin-bottom: 0.2rem; }
+.page-section-title { font-size: 1.35rem; font-weight: 700; color: var(--navy); letter-spacing: -0.02em; line-height: 1.2; }
+.page-section-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; font-weight: 400; }
+.page-header-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; padding-top: 0.1rem; }
+.conf-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 2px; }
+.stand-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); background: #EEF1F4; padding: 0.25rem 0.7rem; border-radius: 2px; }
+.live-dot { display: inline-block; width: 6px; height: 6px; background: var(--success); border-radius: 50%; margin-right: 4px; animation: pulse-dot 2s ease-in-out infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.header-gold-line { height: 2px; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 40%, transparent 100%); margin-top: 1rem; }
+
+/* ===================== SECTIONS ===================== */
+.content-area { padding: 1.5rem 2rem 2rem; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* ===================== KPI ===================== */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 0.875rem; margin-bottom: 1.25rem; }
+.kpi { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--petrol); border-radius: 2px; padding: 1.1rem 1.2rem; box-shadow: var(--shadow); }
+.kpi.gold { border-top-color: var(--gold); }
+.kpi.green { border-top-color: var(--success); }
+.kpi.red { border-top-color: var(--danger); }
+.kpi.navy { border-top-color: var(--navy); }
+.kpi-val { font-size: 1.5rem; font-weight: 700; color: var(--navy); line-height: 1.15; letter-spacing: -0.02em; }
+.kpi.gold .kpi-val { color: #B8891E; }
+.kpi.green .kpi-val { color: var(--success); }
+.kpi.red .kpi-val { color: var(--danger); }
+.kpi-label { font-size: 0.62rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.3rem; }
+.kpi-sub { font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; font-weight: 400; }
+
+/* ===================== CARDS ===================== */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 2px; padding: 1.25rem 1.5rem; box-shadow: var(--shadow); margin-bottom: 1rem; }
+.card-title { font-size: 0.82rem; font-weight: 700; color: var(--navy); margin-bottom: 0.75rem; }
+.card-source { font-size: 0.65rem; color: var(--muted); font-weight: 400; margin-left: 0.5rem; }
+
+/* ===================== DAY GRID ===================== */
+.day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 0.875rem; margin-bottom: 1.25rem; }
+.day-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 2px;
+  padding: 1rem 1.1rem; box-shadow: var(--shadow); cursor: pointer;
+  transition: all 0.2s ease; position: relative; overflow: hidden;
+}
+.day-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.day-card.peak::before { background: var(--gold); }
+.day-card.stark::before { background: var(--petrol); }
+.day-card.normal::before { background: var(--navy-mid); }
+.day-card.ruhig::before { background: var(--border); }
+.day-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); transform: translateY(-1px); }
+.day-card.selected { border-color: var(--petrol); box-shadow: 0 0 0 1px var(--petrol), 0 4px 12px rgba(0,0,0,0.1); }
+.day-weekday { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.15rem; }
+.day-date { font-size: 0.88rem; font-weight: 700; color: var(--navy); margin-bottom: 0.6rem; }
+.day-weather { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.weather-icon { font-size: 1.6rem; line-height: 1; }
+.weather-temp { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
+.weather-temp-min { font-size: 0.72rem; color: var(--muted); font-weight: 400; }
+.weather-rain { font-size: 0.65rem; color: var(--petrol-light); font-weight: 500; }
+.day-type-badge { display: inline-block; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.55rem; border-radius: 2px; margin-bottom: 0.5rem; }
+.badge-peak { background: #FDF4E3; color: #B8891E; }
+.badge-stark { background: #E8F0F5; color: var(--petrol); }
+.badge-normal { background: #EEF1F4; color: var(--navy-mid); }
+.badge-ruhig { background: #F0F0F0; color: var(--muted); }
+.badge-geschlossen { background: var(--danger-bg); color: var(--danger); }
+.day-card.geschlossen::before { background: var(--danger); }
+.day-card.geschlossen { opacity: 0.75; }
+.day-closed-note { font-size: 0.6rem; color: var(--muted); font-style: italic; margin-top: 0.25rem; }
+
+/* Source agreement indicator */
+.source-agree { display: flex; gap: 3px; align-items: center; margin-bottom: 0.5rem; }
+.source-dot { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--border); }
+.source-dot.ok { background: var(--success); border-color: var(--success); }
+.source-dot.warn { background: var(--gold); border-color: var(--gold); }
+.source-dot.fail { background: var(--danger); border-color: var(--danger); }
+.source-dot.off { background: var(--border); }
+.source-label { font-size: 0.55rem; color: var(--muted); margin-left: 2px; }
+
+.day-stats { display: flex; justify-content: space-between; align-items: flex-end; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+.day-staff { font-size: 0.72rem; color: var(--text); font-weight: 600; }
+.day-staff-hours { font-size: 0.62rem; color: var(--muted); font-weight: 400; }
+.day-revenue { font-size: 0.78rem; font-weight: 700; color: var(--navy); text-align: right; }
+.day-revenue-label { font-size: 0.55rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ===================== DETAIL ===================== */
+.detail-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+.detail-back { background: none; border: 1px solid var(--border); color: var(--muted); padding: 0.4rem 0.8rem; cursor: pointer; font-family: inherit; font-size: 0.7rem; font-weight: 500; border-radius: 2px; transition: all 0.15s; }
+.detail-back:hover { background: var(--white); color: var(--navy); border-color: var(--navy); }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.shift-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0; border-bottom: 1px solid var(--border); }
+.shift-row:last-child { border-bottom: none; }
+.shift-badge { display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.25rem 0.55rem; border-radius: 2px; min-width: 52px; text-align: center; }
+.shift-badge.kiosk { background: #E8F0F5; color: var(--petrol); }
+.shift-badge.huette { background: #FDF4E3; color: #B8891E; }
+.shift-name { font-size: 0.78rem; font-weight: 600; color: var(--navy); min-width: 55px; }
+.shift-time { font-size: 0.72rem; color: var(--muted); }
+.shift-hours { font-size: 0.72rem; font-weight: 600; color: var(--text); margin-left: auto; }
+
+/* ===================== COMPARISON TABLE ===================== */
+.compare-grid { display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: 0; font-size: 0.75rem; }
+.compare-grid > div { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+.compare-head { font-weight: 700; color: var(--navy); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; background: #F8F9FA; }
+.compare-src { font-weight: 600; color: var(--muted); font-size: 0.68rem; white-space: nowrap; }
+.compare-val { text-align: right; font-weight: 500; }
+.compare-highlight { background: var(--success-bg); font-weight: 700; }
+
+/* ===================== TABLES ===================== */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+thead th { background: var(--navy); color: #fff; padding: 0.6rem 0.75rem; text-align: left; font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.07); }
+thead th:last-child { border-right: none; }
+tbody td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:nth-child(even) td { background: #F8F9FA; }
+tbody tr:hover td { background: #F0F4F8; }
+.tbl-r { text-align: right; }
+
+/* ===================== NOTES ===================== */
+.note-box { background: #FDF8EC; border: 1px solid #F0E4C0; border-left: 3px solid var(--gold); padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 0.75rem; color: #6B5B2E; border-radius: 0 2px 2px 0; }
+.note-box.info { background: #EEF5FA; border-color: #C8DDE9; border-left-color: var(--petrol); color: var(--petrol); }
+
+/* ===================== LOADING ===================== */
+.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; color: var(--muted); }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--petrol); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 0.8rem; font-weight: 500; }
+.loading-sources { margin-top: 1rem; font-size: 0.7rem; }
+.loading-sources div { padding: 0.2rem 0; display: flex; align-items: center; gap: 0.5rem; }
+.src-status { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.src-status.loading { background: var(--gold); animation: pulse-dot 1s infinite; }
+.src-status.done { background: var(--success); }
+.src-status.error { background: var(--danger); }
+.error-box { background: var(--danger-bg); border: 1px solid #FFCDD2; border-left: 3px solid var(--danger); padding: 1rem 1.25rem; margin: 1rem 0; border-radius: 0 2px 2px 0; }
+.error-title { font-size: 0.8rem; font-weight: 700; color: var(--danger); margin-bottom: 0.25rem; }
+.error-msg { font-size: 0.75rem; color: #6B3030; }
+
+/* ===================== SUMMARY ===================== */
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.summary-item { display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
+.summary-item:last-child { border-bottom: none; }
+.summary-label { color: var(--muted); font-weight: 500; }
+.summary-val { font-weight: 700; color: var(--navy); }
+
+/* ===================== FOOTER ===================== */
+.page-footer { padding: 1.5rem 2rem; border-top: 1px solid var(--border); font-size: 0.65rem; color: var(--muted); line-height: 1.7; }
+
+/* ===================== PRINT ===================== */
+@media print {
+  .sidebar, .mobile-bar, .sidebar-overlay, .btn-refresh, .btn-print { display: none !important; }
+  .main-wrapper { margin-left: 0 !important; }
+  .page-header { position: static; }
+  .day-card { break-inside: avoid; }
+  body { font-size: 11px; }
+}
+
+/* ===================== MOBILE ===================== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform 0.25s ease; }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 199; }
+  .sidebar-overlay.open { display: block; }
+  .mobile-bar { display: flex; }
+  .main-wrapper { margin-left: 0; padding-top: 52px; }
+  .page-header { padding: 1rem 1rem 0; top: 52px; }
+  .content-area { padding: 1rem 1rem 1.5rem; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .page-header-right { display: none; }
+  .page-section-title { font-size: 1.1rem; }
+  .day-grid { grid-template-columns: 1fr 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: auto 1fr 1fr 1fr; font-size: 0.68rem; }
+  .compare-grid > div { padding: 0.35rem 0.5rem; }
+  .page-footer { padding: 1rem; }
+}
+@media (max-width: 420px) {
+  .day-grid { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .kpi { padding: 0.8rem 0.9rem; }
+  .kpi-val { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Mobile bar -->
+<div class="mobile-bar">
+  <span class="mobile-brand">Purki's Wochenplaner</span>
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-company">JD Restaurants GmbH</div>
+    <div class="sidebar-title">Wochenplaner 2026</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Planung</div>
+    <a class="nav-item active" data-tab="uebersicht" onclick="switchTab('uebersicht')">
+      <span class="nav-icon">&#9737;</span> Wochenübersicht
+    </a>
+    <a class="nav-item" data-tab="detail" onclick="switchTab('detail')">
+      <span class="nav-icon">&#9783;</span> Tagesdetails
+    </a>
+    <a class="nav-item" data-tab="vergleich" onclick="switchTab('vergleich')">
+      <span class="nav-icon">&#9878;</span> Quellenvergleich
+    </a>
+    <div class="nav-label" style="margin-top:0.5rem">Referenz</div>
+    <a class="nav-item" data-tab="regeln" onclick="switchTab('regeln')">
+      <span class="nav-icon">&#9881;</span> Regeln &amp; Logik
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-refresh" onclick="loadAllSources()">&#8635; Daten aktualisieren</button>
+    <button class="btn-print" onclick="window.print()">&#128438; Drucken / PDF</button>
+    <div style="margin-top:0.75rem">
+      Purki's Sunshine<br>
+      Freibad Purkersdorf<br>
+      Saison 2026
+    </div>
+  </div>
+</aside>
+
+<!-- Main content -->
+<div class="main-wrapper">
+  <header class="page-header">
+    <div class="page-header-inner">
+      <div>
+        <div class="page-section-label" id="headerLabel">Planung</div>
+        <div class="page-section-title" id="headerTitle">Wochenübersicht</div>
+        <div class="page-section-sub" id="headerSub">Wetterbasierte Personalplanung — 3 Quellen, 7-Tage-Vorhersage</div>
+      </div>
+      <div class="page-header-right">
+        <span class="stand-badge"><span class="live-dot"></span>LIVE</span>
+        <span class="conf-badge">Vertraulich</span>
+      </div>
+    </div>
+    <div class="header-gold-line"></div>
+  </header>
+
+  <div class="content-area">
+    <!-- LOADING -->
+    <div id="loadingState" class="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Wetterdaten werden geladen…</div>
+      <div class="loading-sources" id="loadingSources"></div>
+    </div>
+
+    <!-- ERROR -->
+    <div id="errorState" style="display:none"></div>
+
+    <!-- SECTION: Übersicht -->
+    <div class="section active" id="sec-uebersicht" style="display:none">
+      <div id="preseasonNote"></div>
+      <div class="note-box">
+        &#9888; Vorhersagedaten aus 3 Quellen gemittelt — tatsächliche Werte können abweichen. Empfehlungen basieren auf Korrelationsanalyse Saison 2025.
+      </div>
+      <div class="kpi-row" id="kpiRow"></div>
+      <div class="card">
+        <div class="card-title">7-Tage-Vorhersage<span class="card-source" id="forecastRange"></span></div>
+        <div class="day-grid" id="dayGrid"></div>
+      </div>
+      <div class="card" id="summaryCard"></div>
+    </div>
+
+    <!-- SECTION: Tagesdetails -->
+    <div class="section" id="sec-detail" style="display:none">
+      <div id="detailContent">
+        <div class="note-box info">Klicke auf einen Tag in der Wochenübersicht, um die Schichtdetails zu sehen.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: Quellenvergleich -->
+    <div class="section" id="sec-vergleich" style="display:none">
+      <div id="vergleichContent"></div>
+    </div>
+
+    <!-- SECTION: Regeln -->
+    <div class="section" id="sec-regeln" style="display:none">
+      <div class="card">
+        <div class="card-title">Tagestyp-Klassifizierung<span class="card-source">Basierend auf Saisonanalyse 2025</span></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Tagestyp</th><th>Temperatur</th><th>Niederschlag</th><th>Wochentag</th><th class="tbl-r">Erw. Besucher</th><th class="tbl-r">Erw. Umsatz</th></tr></thead>
+            <tbody>
+              <tr><td><span class="day-type-badge badge-geschlossen">Geschlossen</span></td><td>&lt; 20°C + Regen<br><em style="font-size:0.7rem;color:var(--muted)">oder 20–24°C + Starkregen &gt;10 mm</em></td><td>≥ 1 mm / &gt; 10 mm</td><td>Alle</td><td class="tbl-r">0</td><td class="tbl-r">0 €</td></tr>
+              <tr><td><span class="day-type-badge badge-ruhig">Ruhig</span></td><td>&lt; 20°C trocken<br><em style="font-size:0.7rem;color:var(--muted)">oder 20–24°C + Regen 2–10 mm</em></td><td>&lt; 1 mm / 2–10 mm</td><td>Alle</td><td class="tbl-r">0–200</td><td class="tbl-r">~400 €</td></tr>
+              <tr><td><span class="day-type-badge badge-normal">Normal</span></td><td>20–24°C<br><em style="font-size:0.7rem;color:var(--muted)">oder leichter Regen (&lt; 2 mm)</em></td><td>0–2 mm</td><td>Alle</td><td class="tbl-r">200–500</td><td class="tbl-r">~1.500 €</td></tr>
+              <tr><td><span class="day-type-badge badge-stark">Stark</span></td><td>25–29°C trocken</td><td>&lt; 2 mm</td><td>Mo–Fr</td><td class="tbl-r">500–800</td><td class="tbl-r">~3.500 €</td></tr>
+              <tr><td><span class="day-type-badge badge-peak">Peak</span></td><td>30°C+ trocken<br><em style="font-size:0.7rem;color:var(--muted)">oder 25–29°C trocken am WE</em></td><td>&lt; 2 mm</td><td>Alle (WE-Bonus)</td><td class="tbl-r">800+</td><td class="tbl-r">~5.500 €</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title">Schicht-Templates<span class="card-source">Personalplan 2026</span></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Schicht</th><th>Bereich</th><th>Zeitraum</th><th class="tbl-r">Stunden</th><th>Aktiv bei</th></tr></thead>
+            <tbody>
+              <tr><td>Früh</td><td><span class="shift-badge kiosk">Kiosk</span></td><td>09:00 – 17:00</td><td class="tbl-r">8h</td><td>Ruhig, Normal, Stark, Peak</td></tr>
+              <tr><td>Früh2</td><td><span class="shift-badge kiosk">Kiosk</span></td><td>10:00 – 18:00</td><td class="tbl-r">8h</td><td>Stark, Peak</td></tr>
+              <tr><td>Spät</td><td><span class="shift-badge kiosk">Kiosk</span></td><td>12:00 – 20:00</td><td class="tbl-r">8h</td><td>Ruhig, Normal, Stark, Peak</td></tr>
+              <tr><td>Spät2</td><td><span class="shift-badge kiosk">Kiosk</span></td><td>13:00 – 20:00</td><td class="tbl-r">7h</td><td>Peak</td></tr>
+              <tr><td>Kurz</td><td><span class="shift-badge kiosk">Kiosk</span></td><td>11:00 – 16:00</td><td class="tbl-r">5h</td><td>Peak</td></tr>
+              <tr><td>Hütte</td><td><span class="shift-badge huette">Hütte</span></td><td>11:00 – 18:00</td><td class="tbl-r">7h</td><td>Normal, Stark, Peak</td></tr>
+              <tr style="background:var(--danger-bg)"><td colspan="5" style="font-style:italic;color:var(--danger);font-size:0.72rem">Geschlossen: Kein operatives Personal. Putztag/Vorbereitung nach Bedarf.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-title">Wetter-Quellen</div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.8">
+          <strong>Open-Meteo (GeoSphere/ICON):</strong> Lokales Modell, optimiert für Österreich via GeoSphere Austria + DWD ICON.<br>
+          <strong>ECMWF IFS:</strong> Europäisches Zentrum für mittelfristige Wettervorhersage — eines der genauesten globalen Modelle.<br>
+          <strong>GFS:</strong> Global Forecast System (NOAA/USA) — unabhängiges Gegenmodell für Vergleichszwecke.<br><br>
+          Klassifizierung erfolgt auf Basis des <strong>Medians</strong> aller verfügbaren Quellen. Einzelausfälle werden automatisch ignoriert.<br><br>
+          <strong>Geschlossen-Regel:</strong> Kreuzvalidiert mit allen 128 Saisontagen 2025 — 22/22 korrekt (max. 40 Besucher, 100% Trefferquote). Ersparnis: ~8.332 € Personalkosten, 0 € Risiko.<br>
+          <strong>Break-even Minimalbetrieb:</strong> ~80 Besucher (2 Pers. × 8h × 21,53 € = 344 € ÷ 4,27 €/Besucher).<br><br>
+          <em>Personalregeln: Buchungsjournal 2025, Eintrittslisten 2024+2025, Open-Meteo Wetterdaten, Zeiterfassung 2025</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page-footer">
+    Datenquellen: Open-Meteo (GeoSphere/ICON), ECMWF IFS, GFS &nbsp;|&nbsp; Purki's Sunshine — JD Restaurants GmbH &nbsp;|&nbsp; Vertraulich
+  </footer>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const LAT = 48.18, LON = 16.17;
+const COST_PER_HOUR = 21.53;
+const SEASON_START = new Date(2026, 4, 30);
+
+const SOURCES = [
+  {
+    id: 'openmeteo',
+    name: 'Open-Meteo',
+    desc: 'GeoSphere/ICON (AT)',
+    color: '#2D5F7C',
+    url: `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,weather_code&timezone=Europe/Vienna`
+  },
+  {
+    id: 'ecmwf',
+    name: 'ECMWF IFS',
+    desc: 'Europäisches Zentrum (EU)',
+    color: '#D4A843',
+    url: `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,weather_code&timezone=Europe/Vienna`
+  },
+  {
+    id: 'gfs',
+    name: 'GFS',
+    desc: 'NOAA (US)',
+    color: '#00695C',
+    url: `https://api.open-meteo.com/v1/gfs?latitude=${LAT}&longitude=${LON}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,sunshine_duration,weather_code&timezone=Europe/Vienna`
+  }
+];
+
+const DAY_TYPES = {
+  peak:        { label: 'Peak',        badge: 'badge-peak',        cls: 'peak',        visitors: '800+',    revenue: 5500, staff: 6, hours: 43 },
+  stark:       { label: 'Stark',       badge: 'badge-stark',       cls: 'stark',       visitors: '500–800', revenue: 3500, staff: 4, hours: 31 },
+  normal:      { label: 'Normal',      badge: 'badge-normal',      cls: 'normal',      visitors: '200–500', revenue: 1500, staff: 3, hours: 23 },
+  ruhig:       { label: 'Ruhig',       badge: 'badge-ruhig',       cls: 'ruhig',       visitors: '0–200',   revenue: 400,  staff: 2, hours: 16 },
+  geschlossen: { label: 'Geschlossen', badge: 'badge-geschlossen', cls: 'geschlossen', visitors: '0',       revenue: 0,    staff: 0, hours: 0  }
+};
+
+const SHIFTS = {
+  peak:        [ { name:'Früh', area:'kiosk', from:'09:00', to:'17:00', h:8 }, { name:'Früh2', area:'kiosk', from:'10:00', to:'18:00', h:8 }, { name:'Spät', area:'kiosk', from:'12:00', to:'20:00', h:8 }, { name:'Spät2', area:'kiosk', from:'13:00', to:'20:00', h:7 }, { name:'Kurz', area:'kiosk', from:'11:00', to:'16:00', h:5 }, { name:'Hütte', area:'huette', from:'11:00', to:'18:00', h:7 } ],
+  stark:       [ { name:'Früh', area:'kiosk', from:'09:00', to:'17:00', h:8 }, { name:'Früh2', area:'kiosk', from:'10:00', to:'18:00', h:8 }, { name:'Spät', area:'kiosk', from:'12:00', to:'20:00', h:8 }, { name:'Hütte', area:'huette', from:'11:00', to:'18:00', h:7 } ],
+  normal:      [ { name:'Früh', area:'kiosk', from:'09:00', to:'17:00', h:8 }, { name:'Spät', area:'kiosk', from:'12:00', to:'20:00', h:8 }, { name:'Hütte', area:'huette', from:'11:00', to:'18:00', h:7 } ],
+  ruhig:       [ { name:'Früh', area:'kiosk', from:'09:00', to:'17:00', h:8 }, { name:'Spät', area:'kiosk', from:'12:00', to:'20:00', h:8 } ],
+  geschlossen: []
+};
+
+const WEEKDAYS = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+
+// ===================== STATE =====================
+let sourceResults = {};  // { openmeteo: [...], ecmwf: [...], gfs: [...] }
+let mergedData = null;   // merged 7-day data
+let selectedDayIndex = 0;
+
+// ===================== FETCH =====================
+async function fetchSource(src) {
+  const resp = await fetch(src.url);
+  if (!resp.ok) throw new Error(`${resp.status}`);
+  const data = await resp.json();
+  const d = data.daily;
+  return d.time.map((date, i) => ({
+    date: date,
+    tmax: d.temperature_2m_max?.[i] ?? null,
+    tmin: d.temperature_2m_min?.[i] ?? null,
+    rain: d.precipitation_sum?.[i] ?? null,
+    sunshine: d.sunshine_duration ? (d.sunshine_duration[i] / 3600) : null,
+    weathercode: d.weather_code?.[i] ?? d.weathercode?.[i] ?? null
+  }));
+}
+
+async function loadAllSources() {
+  const loading = document.getElementById('loadingState');
+  const errorEl = document.getElementById('errorState');
+  const section = document.getElementById('sec-uebersicht');
+
+  loading.style.display = 'flex';
+  errorEl.style.display = 'none';
+  section.style.display = 'none';
+
+  // Show source loading status
+  document.getElementById('loadingSources').innerHTML = SOURCES.map(s =>
+    `<div><span class="src-status loading" id="src-${s.id}"></span> ${s.name} <span style="color:var(--muted)">(${s.desc})</span></div>`
+  ).join('');
+
+  const results = {};
+  let successCount = 0;
+
+  await Promise.all(SOURCES.map(async src => {
+    try {
+      results[src.id] = await fetchSource(src);
+      document.getElementById('src-' + src.id)?.classList.replace('loading', 'done');
+      successCount++;
+    } catch (e) {
+      results[src.id] = null;
+      document.getElementById('src-' + src.id)?.classList.replace('loading', 'error');
+    }
+  }));
+
+  if (successCount === 0) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    errorEl.innerHTML = `<div class="error-box"><div class="error-title">Keine Wetterdaten verfügbar</div><div class="error-msg">Alle 3 Quellen sind fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.</div></div>`;
+    return;
+  }
+
+  sourceResults = results;
+  mergedData = mergeData(results);
+
+  loading.style.display = 'none';
+  section.style.display = 'block';
+  render();
+}
+
+// ===================== MERGE =====================
+function median(arr) {
+  const v = arr.filter(x => x !== null && x !== undefined).sort((a, b) => a - b);
+  if (v.length === 0) return null;
+  const mid = Math.floor(v.length / 2);
+  return v.length % 2 ? v[mid] : (v[mid - 1] + v[mid]) / 2;
+}
+
+function mergeData(results) {
+  // Find common dates across available sources
+  const available = SOURCES.filter(s => results[s.id]);
+  if (available.length === 0) return null;
+  const baseDates = results[available[0].id].map(d => d.date);
+
+  return baseDates.map((dateStr, i) => {
+    const tmaxArr = available.map(s => results[s.id][i]?.tmax).filter(v => v != null);
+    const tminArr = available.map(s => results[s.id][i]?.tmin).filter(v => v != null);
+    const rainArr = available.map(s => results[s.id][i]?.rain).filter(v => v != null);
+    const sunArr  = available.map(s => results[s.id][i]?.sunshine).filter(v => v != null);
+
+    const tmax = median(tmaxArr);
+    const tmin = median(tminArr);
+    const rain = median(rainArr);
+    const sunshine = median(sunArr);
+
+    // Find best weathercode from first available source
+    let weathercode = null;
+    for (const s of available) {
+      if (results[s.id][i]?.weathercode != null) { weathercode = results[s.id][i].weathercode; break; }
+    }
+
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const dayType = classifyDay(tmax, rain, dateObj);
+
+    // Source-level classification for agreement check
+    const sourceTypes = {};
+    for (const s of SOURCES) {
+      if (!results[s.id] || !results[s.id][i]) { sourceTypes[s.id] = null; continue; }
+      const sd = results[s.id][i];
+      sourceTypes[s.id] = sd.tmax != null ? classifyDay(sd.tmax, sd.rain, dateObj) : null;
+    }
+
+    return {
+      date: dateObj, dateStr, tmax, tmin, rain, sunshine, weathercode,
+      dayType, typeConfig: DAY_TYPES[dayType], shifts: SHIFTS[dayType],
+      sources: { tmax: tmaxArr, tmin: tminArr, rain: rainArr },
+      sourceTypes, sourceCount: available.length
+    };
+  });
+}
+
+// ===================== CLASSIFY =====================
+function classifyDay(tmax, rain, dateObj) {
+  if (tmax == null) return 'ruhig';
+  const r = rain ?? 0;
+  const isWE = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+  const isDry = r < 2;
+
+  // Geschlossen: <20°C + Regen, oder 20-24°C + Starkregen >10mm
+  if (tmax < 20 && r >= 1) return 'geschlossen';
+  if (tmax >= 20 && tmax < 25 && r > 10) return 'geschlossen';
+
+  if (tmax < 20) return 'ruhig';
+  if (tmax >= 30 && isDry) return 'peak';
+  if (tmax >= 25 && isDry && isWE) return 'peak';
+  if (tmax >= 25 && isDry) return 'stark';
+  if (tmax >= 20) return 'normal';
+  return 'ruhig';
+}
+
+// ===================== ICONS =====================
+function weatherIcon(code) {
+  if (code == null) return '🌤️';
+  if (code <= 1) return '☀️';
+  if (code <= 3) return '⛅';
+  if (code <= 48) return '☁️';
+  if (code <= 67) return '🌧️';
+  if (code <= 77) return '🌨️';
+  if (code <= 86) return '🌨️';
+  if (code <= 99) return '⛈️';
+  return '🌤️';
+}
+
+// ===================== FORMAT =====================
+function fmt(n) { return n != null ? n.toLocaleString('de-AT') : '–'; }
+function fmtE(n) { return n != null ? n.toLocaleString('de-AT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €' : '–'; }
+function fmtDate(d) { return d.toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit' }); }
+function fmtDateLong(d) { return d.toLocaleDateString('de-AT', { weekday: 'long', day: 'numeric', month: 'long' }); }
+function fmtTemp(v) { return v != null ? v.toFixed(1).replace('.', ',') + '°C' : '–'; }
+
+// ===================== RENDER OVERVIEW =====================
+function render() {
+  if (!mergedData) return;
+
+  const totalHours = mergedData.reduce((s, d) => s + d.typeConfig.hours, 0);
+  const totalCost = totalHours * COST_PER_HOUR;
+  const totalRevenue = mergedData.reduce((s, d) => s + d.typeConfig.revenue, 0);
+  const avgStaff = (mergedData.reduce((s, d) => s + d.typeConfig.staff, 0) / mergedData.length).toFixed(1);
+  const activeSources = SOURCES.filter(s => sourceResults[s.id]).length;
+
+  // Pre-season note
+  const preNote = document.getElementById('preseasonNote');
+  const now = new Date();
+  if (now < SEASON_START) {
+    const daysUntil = Math.ceil((SEASON_START - now) / 86400000);
+    preNote.innerHTML = `<div class="note-box info">&#9881; Testmodus — Saisonstart in ${daysUntil} Tagen (30.05.2026). Personalempfehlungen gelten für den Saisonbetrieb.</div>`;
+  } else { preNote.innerHTML = ''; }
+
+  // KPIs
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-val">${fmt(totalHours)}h</div>
+      <div class="kpi-label">Gesamtstunden</div>
+      <div class="kpi-sub">7 Tage</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-val">${fmtE(Math.round(totalCost))}</div>
+      <div class="kpi-label">Personalkosten</div>
+      <div class="kpi-sub">× ${COST_PER_HOUR.toFixed(2).replace('.', ',')} €/h</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-val">${fmtE(totalRevenue)}</div>
+      <div class="kpi-label">Erw. Umsatz</div>
+      <div class="kpi-sub">${activeSources}/3 Quellen aktiv</div>
+    </div>
+    <div class="kpi navy">
+      <div class="kpi-val">${avgStaff}</div>
+      <div class="kpi-label">Ø Personal / Tag</div>
+      <div class="kpi-sub">${mergedData.filter(d => d.dayType === 'peak').length} Peak-Tage</div>
+    </div>`;
+
+  document.getElementById('forecastRange').textContent =
+    fmtDate(mergedData[0].date) + ' – ' + fmtDate(mergedData[mergedData.length - 1].date);
+
+  // Day cards
+  document.getElementById('dayGrid').innerHTML = mergedData.map((d, i) => {
+    // Agreement dots
+    const types = SOURCES.map(s => d.sourceTypes[s.id]);
+    const validTypes = types.filter(t => t != null);
+    const allAgree = validTypes.length > 1 && validTypes.every(t => t === d.dayType);
+    const dots = SOURCES.map((s, si) => {
+      if (types[si] == null) return `<span class="source-dot off" title="${s.name}: nicht verfügbar"></span>`;
+      const match = types[si] === d.dayType;
+      return `<span class="source-dot ${match ? 'ok' : 'warn'}" title="${s.name}: ${DAY_TYPES[types[si]].label}"></span>`;
+    }).join('');
+
+    return `
+    <div class="day-card ${d.typeConfig.cls}${i === selectedDayIndex ? ' selected' : ''}" onclick="selectDay(${i})">
+      <div class="day-weekday">${WEEKDAYS[d.date.getDay()]}</div>
+      <div class="day-date">${fmtDate(d.date)}</div>
+      <div class="day-weather">
+        <span class="weather-icon">${weatherIcon(d.weathercode)}</span>
+        <div>
+          <div class="weather-temp">${Math.round(d.tmax)}°C <span class="weather-temp-min">/ ${Math.round(d.tmin)}°C</span></div>
+          ${d.rain > 0 ? `<div class="weather-rain">&#x1F4A7; ${d.rain.toFixed(1)} mm</div>` : ''}
+        </div>
+      </div>
+      <div class="source-agree">${dots}<span class="source-label">${allAgree ? 'einig' : 'Abw.'}</span></div>
+      <div class="day-type-badge ${d.typeConfig.badge}">${d.typeConfig.label}</div>
+      ${d.dayType === 'geschlossen' ? `
+      <div class="day-stats" style="border-top:1px solid var(--border);padding-top:0.5rem">
+        <div>
+          <div class="day-staff" style="color:var(--danger)">Kein Betrieb</div>
+          <div class="day-closed-note">Putztag möglich</div>
+        </div>
+        <div>
+          <div class="day-revenue" style="color:var(--muted)">0 €</div>
+          <div class="day-revenue-label">Kein Umsatz</div>
+        </div>
+      </div>` : `
+      <div class="day-stats">
+        <div>
+          <div class="day-staff">${d.typeConfig.staff} Personen</div>
+          <div class="day-staff-hours">${d.typeConfig.hours}h gesamt</div>
+        </div>
+        <div>
+          <div class="day-revenue">${fmtE(d.typeConfig.revenue)}</div>
+          <div class="day-revenue-label">Erw. Umsatz</div>
+        </div>
+      </div>`}
+    </div>`;
+  }).join('');
+
+  // Summary
+  const typeCounts = { peak: 0, stark: 0, normal: 0, ruhig: 0, geschlossen: 0 };
+  mergedData.forEach(d => typeCounts[d.dayType]++);
+  const betriebsTage = mergedData.length - typeCounts.geschlossen;
+  const margin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue * 100).toFixed(1) : '0';
+
+  document.getElementById('summaryCard').innerHTML = `
+    <div class="card-title">Wochenzusammenfassung</div>
+    <div class="summary-grid">
+      <div>
+        <div class="summary-item"><span class="summary-label">Betriebstage</span><span class="summary-val">${betriebsTage} von ${mergedData.length}</span></div>
+        <div class="summary-item"><span class="summary-label">Gesamtstunden</span><span class="summary-val">${fmt(totalHours)}h</span></div>
+        <div class="summary-item"><span class="summary-label">Personalkosten</span><span class="summary-val">${fmtE(Math.round(totalCost))}</span></div>
+        <div class="summary-item"><span class="summary-label">Erw. Umsatz</span><span class="summary-val">${fmtE(totalRevenue)}</span></div>
+      </div>
+      <div>
+        <div class="summary-item"><span class="summary-label">Peak-Tage</span><span class="summary-val">${typeCounts.peak}</span></div>
+        <div class="summary-item"><span class="summary-label">Stark-Tage</span><span class="summary-val">${typeCounts.stark}</span></div>
+        <div class="summary-item"><span class="summary-label">Normal-Tage</span><span class="summary-val">${typeCounts.normal}</span></div>
+        <div class="summary-item"><span class="summary-label">Ruhig-Tage</span><span class="summary-val">${typeCounts.ruhig}</span></div>
+        ${typeCounts.geschlossen > 0 ? `<div class="summary-item"><span class="summary-label" style="color:var(--danger)">Geschlossen</span><span class="summary-val" style="color:var(--danger)">${typeCounts.geschlossen}</span></div>` : ''}
+      </div>
+    </div>`;
+}
+
+// ===================== DETAIL =====================
+function selectDay(idx) {
+  selectedDayIndex = idx;
+  renderDetail(idx);
+  switchTab('detail');
+}
+
+function renderDetail(idx) {
+  const d = mergedData[idx];
+  const shifts = d.shifts;
+  const totalH = shifts.reduce((s, sh) => s + sh.h, 0);
+  const kioskH = shifts.filter(s => s.area === 'kiosk').reduce((s, sh) => s + sh.h, 0);
+  const hutteH = shifts.filter(s => s.area === 'huette').reduce((s, sh) => s + sh.h, 0);
+
+  // Source comparison for this day
+  const srcRows = SOURCES.map(s => {
+    const sd = sourceResults[s.id]?.[idx];
+    if (!sd) return `<div class="compare-src" style="opacity:0.4">${s.name}</div><div class="compare-val" style="opacity:0.4">–</div><div class="compare-val" style="opacity:0.4">–</div><div class="compare-val" style="opacity:0.4">–</div>`;
+    const type = d.sourceTypes[s.id];
+    return `<div class="compare-src"><span style="color:${s.color}">&#9679;</span> ${s.name}</div><div class="compare-val">${fmtTemp(sd.tmax)}</div><div class="compare-val">${sd.rain != null ? sd.rain.toFixed(1).replace('.', ',') + ' mm' : '–'}</div><div class="compare-val"><span class="day-type-badge ${type ? DAY_TYPES[type].badge : ''}" style="font-size:0.55rem">${type ? DAY_TYPES[type].label : '–'}</span></div>`;
+  }).join('');
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-header">
+      <button class="detail-back" onclick="switchTab('uebersicht')">&#8592; Zurück</button>
+      <div>
+        <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)">${WEEKDAYS[d.date.getDay()]}</span>
+        <span style="font-size:1rem;font-weight:700;color:var(--navy);margin-left:0.5rem">${fmtDateLong(d.date)}</span>
+        <span class="day-type-badge ${d.typeConfig.badge}" style="margin-left:0.75rem;vertical-align:middle">${d.typeConfig.label}</span>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="card">
+        <div class="card-title">Schichtplan</div>
+        ${d.dayType === 'geschlossen' ? `
+        <div style="padding:1.5rem 0;text-align:center">
+          <div style="font-size:1.5rem;margin-bottom:0.5rem">&#10060;</div>
+          <div style="font-size:0.9rem;font-weight:700;color:var(--danger);margin-bottom:0.25rem">Kein Betrieb</div>
+          <div style="font-size:0.75rem;color:var(--muted)">Kein operatives Personal eingeplant</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem;font-style:italic">Putztag / Vorbereitung nach Bedarf</div>
+          <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);font-size:0.72rem;color:var(--muted)">
+            Datenbasiert: &lt;20°C + Regen hatte 2025 max. 40 Besucher (100% Trefferquote über 22 Tage)
+          </div>
+        </div>` : `
+        ${shifts.map(sh => `
+          <div class="shift-row">
+            <span class="shift-badge ${sh.area}">${sh.area === 'kiosk' ? 'Kiosk' : 'Hütte'}</span>
+            <span class="shift-name">${sh.name}</span>
+            <span class="shift-time">${sh.from} – ${sh.to}</span>
+            <span class="shift-hours">${sh.h}h</span>
+          </div>`).join('')}
+        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:2px solid var(--navy);display:flex;justify-content:space-between;font-size:0.78rem">
+          <span style="font-weight:700;color:var(--navy)">Gesamt: ${d.typeConfig.staff} Personen</span>
+          <span style="font-weight:700;color:var(--navy)">${totalH}h</span>
+        </div>
+        <div style="margin-top:0.25rem;display:flex;justify-content:space-between;font-size:0.68rem;color:var(--muted)">
+          <span>Kiosk: ${kioskH}h | Hütte: ${hutteH}h</span>
+          <span>Kosten: ${fmtE(Math.round(totalH * COST_PER_HOUR))}</span>
+        </div>`}
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-title">Wetter (Median)</div>
+          <div class="summary-item"><span class="summary-label">Tmax</span><span class="summary-val">${fmtTemp(d.tmax)}</span></div>
+          <div class="summary-item"><span class="summary-label">Tmin</span><span class="summary-val">${fmtTemp(d.tmin)}</span></div>
+          <div class="summary-item"><span class="summary-label">Niederschlag</span><span class="summary-val">${d.rain != null ? d.rain.toFixed(1).replace('.', ',') + ' mm' : '–'}</span></div>
+          <div class="summary-item"><span class="summary-label">Sonnenstunden</span><span class="summary-val">${d.sunshine != null ? d.sunshine.toFixed(1).replace('.', ',') + 'h' : '–'}</span></div>
+          <div class="summary-item"><span class="summary-label">Erw. Besucher</span><span class="summary-val">${d.typeConfig.visitors}</span></div>
+          <div class="summary-item"><span class="summary-label">Erw. Umsatz</span><span class="summary-val">${fmtE(d.typeConfig.revenue)}</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quellenvergleich</div>
+          <div class="compare-grid">
+            <div class="compare-head">Quelle</div><div class="compare-head" style="text-align:right">Tmax</div><div class="compare-head" style="text-align:right">Regen</div><div class="compare-head" style="text-align:right">Typ</div>
+            ${srcRows}
+            <div class="compare-src" style="font-weight:700;border-top:2px solid var(--navy)">Median</div>
+            <div class="compare-val compare-highlight" style="border-top:2px solid var(--navy)">${fmtTemp(d.tmax)}</div>
+            <div class="compare-val compare-highlight" style="border-top:2px solid var(--navy)">${d.rain != null ? d.rain.toFixed(1).replace('.', ',') + ' mm' : '–'}</div>
+            <div class="compare-val compare-highlight" style="border-top:2px solid var(--navy)"><span class="day-type-badge ${d.typeConfig.badge}" style="font-size:0.55rem">${d.typeConfig.label}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  document.querySelectorAll('.day-card').forEach((card, i) => card.classList.toggle('selected', i === idx));
+}
+
+// ===================== COMPARISON VIEW =====================
+function renderVergleich() {
+  if (!mergedData) {
+    document.getElementById('vergleichContent').innerHTML = '<div class="note-box info">Bitte zuerst Wetterdaten laden.</div>';
+    return;
+  }
+
+  const rows = mergedData.map((d, i) => {
+    const cells = SOURCES.map(s => {
+      const sd = sourceResults[s.id]?.[i];
+      if (!sd || sd.tmax == null) return `<td style="opacity:0.4;text-align:center">–</td>`;
+      const type = d.sourceTypes[s.id];
+      return `<td class="tbl-r">${fmtTemp(sd.tmax)} <span class="day-type-badge ${type ? DAY_TYPES[type].badge : ''}" style="font-size:0.5rem;vertical-align:middle">${type ? DAY_TYPES[type].label : ''}</span></td>`;
+    }).join('');
+    return `<tr>
+      <td style="font-weight:600;white-space:nowrap">${WEEKDAYS[d.date.getDay()].slice(0, 2)} ${fmtDate(d.date)}</td>
+      ${cells}
+      <td class="tbl-r" style="font-weight:700;background:var(--success-bg)">${fmtTemp(d.tmax)}</td>
+      <td class="tbl-r"><span class="day-type-badge ${d.typeConfig.badge}">${d.typeConfig.label}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('vergleichContent').innerHTML = `
+    <div class="card">
+      <div class="card-title">Temperaturvergleich aller Quellen<span class="card-source">Tmax pro Tag</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Tag</th>
+            ${SOURCES.map(s => `<th class="tbl-r"><span style="color:${s.color}">&#9679;</span> ${s.name}</th>`).join('')}
+            <th class="tbl-r" style="background:var(--success)">Median</th>
+            <th class="tbl-r">Typ</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <div class="card-title">Niederschlagsvergleich<span class="card-source">mm pro Tag</span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Tag</th>
+            ${SOURCES.map(s => `<th class="tbl-r"><span style="color:${s.color}">&#9679;</span> ${s.name}</th>`).join('')}
+            <th class="tbl-r" style="background:var(--success)">Median</th>
+          </tr></thead>
+          <tbody>${mergedData.map((d, i) => {
+            const cells = SOURCES.map(s => {
+              const sd = sourceResults[s.id]?.[i];
+              if (!sd || sd.rain == null) return `<td style="opacity:0.4;text-align:center">–</td>`;
+              const isHigh = sd.rain > 5;
+              return `<td class="tbl-r" ${isHigh ? 'style="color:var(--danger);font-weight:600"' : ''}>${sd.rain.toFixed(1).replace('.', ',')} mm</td>`;
+            }).join('');
+            return `<tr>
+              <td style="font-weight:600;white-space:nowrap">${WEEKDAYS[d.date.getDay()].slice(0, 2)} ${fmtDate(d.date)}</td>
+              ${cells}
+              <td class="tbl-r" style="font-weight:700;background:var(--success-bg)">${d.rain != null ? d.rain.toFixed(1).replace('.', ',') + ' mm' : '–'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="note-box" style="margin-top:1rem">
+      Klassifizierung erfolgt auf Basis des Medians aller verfügbaren Quellen. Bei Abweichungen zwischen den Quellen: konservativer planen (mehr Personal ist besser als zu wenig).
+    </div>`;
+}
+
+// ===================== NAVIGATION =====================
+const headerConfig = {
+  uebersicht: { label: 'Planung', title: 'Wochenübersicht', sub: 'Wetterbasierte Personalplanung — 3 Quellen, 7-Tage-Vorhersage' },
+  detail:     { label: 'Planung', title: 'Tagesdetails', sub: 'Schichtplan, Wetterdaten und Quellenvergleich' },
+  vergleich:  { label: 'Analyse', title: 'Quellenvergleich', sub: 'Temperatur und Niederschlag — Open-Meteo vs. ECMWF vs. GFS' },
+  regeln:     { label: 'Referenz', title: 'Regeln & Logik', sub: 'Klassifizierungsregeln und Schicht-Templates (Saison 2025)' }
+};
+
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.style.display = 'none'; });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const sec = document.getElementById('sec-' + tab);
+  if (sec) { sec.classList.add('active'); sec.style.display = 'block'; }
+  document.querySelector(`[data-tab="${tab}"]`)?.classList.add('active');
+
+  if (tab === 'vergleich') renderVergleich();
+
+  const hc = headerConfig[tab];
+  if (hc) {
+    document.getElementById('headerLabel').textContent = hc.label;
+    document.getElementById('headerTitle').textContent = hc.title;
+    document.getElementById('headerSub').textContent = hc.sub;
+  }
+
+  document.querySelector('.sidebar')?.classList.remove('open');
+  document.querySelector('.sidebar-overlay')?.classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+
+// ===================== INIT =====================
+loadAllSources();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "Purki's Wochenplaner",
+  "short_name": "Wochenplaner",
+  "description": "Wetterbasierte Personalplanung für Purki's Sunshine",
+  "start_url": "08-wochenplaner-2026.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0C2340",
+  "theme_color": "#0C2340",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230C2340'/><text x='50' y='38' text-anchor='middle' font-size='28' fill='%23D4A843'>%E2%98%80%EF%B8%8F</text><text x='50' y='72' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='22' fill='white'>P</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
