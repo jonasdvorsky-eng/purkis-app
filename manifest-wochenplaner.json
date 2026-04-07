@@ -2,7 +2,7 @@
   "name": "Purki's Wochenplaner",
   "short_name": "Wochenplaner",
   "description": "Wetterbasierte Personalplanung für Purki's Sunshine",
-  "start_url": "08-wochenplaner-2026.html",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0C2340",
